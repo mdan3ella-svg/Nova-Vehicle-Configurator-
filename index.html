@@ -809,7 +809,33 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-loadDemoCar();
+// -------------------------------------------------------------------------
+// Auto-load a server-hosted asset on launch
+// -------------------------------------------------------------------------
+// Path is relative to this HTML file's own location on the server. If
+// SUV.glb sits in the same folder as this file, the default below works
+// as-is. If it lives elsewhere, change the path (e.g. './models/SUV.glb'
+// or an absolute '/assets/SUV.glb').
+const DEFAULT_ASSET_URL = 'SUV.glb';
+
+function loadAssetFromURL(url, label) {
+  loadingEl.classList.add('show');
+  viewportTag.textContent = `Loading ${label || url}…`;
+  const loader = new GLTFLoader();
+  loader.setDRACOLoader(dracoLoader);
+  loader.load(
+    url,
+    (gltf) => finalizeImportedModel(gltf.scene, gltf.animations, label || url),
+    undefined,
+    (err) => {
+      loadingEl.classList.remove('show');
+      console.warn(`Could not auto-load "${url}" — falling back to the demo vehicle.`, err);
+      loadDemoCar();
+    }
+  );
+}
+
+loadAssetFromURL(DEFAULT_ASSET_URL, 'SUV.glb');
 animate();
 </script>
 </body>
